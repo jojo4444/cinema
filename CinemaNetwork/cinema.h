@@ -31,8 +31,11 @@ namespace cinema {
         Hall();
 
         Order BuySeat(int row, int col);
+
         nlohmann::json GetJSON() const;
-        void ReadFromJSON(nlohmann::json& j);
+
+        void ReadFromJSON(nlohmann::json &j);
+
     private:
         void CovidLock(int row, int col);
 
@@ -45,9 +48,12 @@ namespace cinema {
     public:
         Cinema();
 
-        void Write() const;
+        void ReadFromJSON(std::ifstream &inf);
+
         nlohmann::json GetJSON() const;
-        void ReadFromJSON(std::ifstream& inf);
+
+        void Write() const;
+
     private:
         std::string city_;
         std::vector<Hall> halls_;

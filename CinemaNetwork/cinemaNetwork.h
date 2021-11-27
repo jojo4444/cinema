@@ -15,9 +15,9 @@ namespace cnet {
     public:
         CinemaNetwork();
 
+        void Init();
         nlohmann::json GetJSON() const;
         void Write() const;
-        void Init();
     private:
         std::vector<Cinema> cinemas_;
     };
