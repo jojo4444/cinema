@@ -34,8 +34,11 @@ namespace cinema {
         nlohmann::json GetJSON();
         void ReadFromJSON(nlohmann::json& j);
     private:
+        void CovidLock(int row, int col);
+
         std::string name_;
         std::vector<int> rows_;
+        std::vector<std::vector<Seat> > status_;
     };
 
     class Cinema {

@@ -11,6 +11,12 @@ cinema::Hall::Hall() {
 void cinema::Hall::ReadFromJSON(nlohmann::json &j)  {
     name_ = j["name"].get<std::string>();
     rows_ = j["rows"].get<std::vector<int> >();
+
+    status_.clear();
+    status_.resize(rows_.size());
+    for (size_t i = 0; i < rows_.size(); ++i) {
+        status_[i].resize(rows_[i], Seat::Free);
+    }
 }
 
 nlohmann::json cinema::Hall::GetJSON() {
@@ -20,6 +26,31 @@ nlohmann::json cinema::Hall::GetJSON() {
         j["rows"].push_back(r);
     }
     return j;
+}
+
+void cinema::Hall::CovidLock(int row, int col) {
+    if (0 <= row && row < rows_.size() && 0 <= col && col < rows_[row] && status_[row][col] == cinema::Seat::Free) {
+        status_[row][col] = cinema::Seat::Lock;
+    }
+}
+
+cinema::Order cinema::Hall::BuySeat(int row, int col) {
+    if (row < 0 || row >= rows_.size()) {
+        return cinema::Order::Incorrect;
+    }
+    if (col < 0 || col >= rows_[row]) {
+        return cinema::Order::Incorrect;
+    }
+    if (status_[row][col] == cinema::Seat::Free) {
+        status_[row][col] = cinema::Seat::Buy;
+        CovidLock(row, col - 1);
+        CovidLock(row, col + 1);
+        return cinema::Order::Success;
+    }
+    if (status_[row][col] == cinema::Seat::Lock) {
+        return cinema::Order::Incorrect;
+    }
+    return cinema::Order::Taken;
 }
 
 cinema::Cinema::Cinema() {
