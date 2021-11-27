@@ -4,9 +4,7 @@
 
 #include "cinema.h"
 
-cinema::Hall::Hall() {
-    name_ = DEFAULT_NAME;
-}
+cinema::Hall::Hall() : name_(DEFAULT_NAME) {}
 
 void cinema::Hall::ReadFromJSON(nlohmann::json &j)  {
     name_ = j["name"].get<std::string>();
@@ -19,10 +17,10 @@ void cinema::Hall::ReadFromJSON(nlohmann::json &j)  {
     }
 }
 
-nlohmann::json cinema::Hall::GetJSON() {
+nlohmann::json cinema::Hall::GetJSON() const {
     nlohmann::json j;
     j["name"] = name_;
-    for (int& r : rows_) {
+    for (int r : rows_) {
         j["rows"].push_back(r);
     }
     return j;
@@ -53,9 +51,7 @@ cinema::Order cinema::Hall::BuySeat(int row, int col) {
     return cinema::Order::Taken;
 }
 
-cinema::Cinema::Cinema() {
-    city_ = DEFAULT_CITY;
-}
+cinema::Cinema::Cinema() : city_(DEFAULT_CITY) {}
 
 void cinema::Cinema::ReadFromJSON(std::ifstream& inf) {
     nlohmann::json j;
@@ -70,15 +66,15 @@ void cinema::Cinema::ReadFromJSON(std::ifstream& inf) {
     }
 }
 
-nlohmann::json cinema::Cinema::GetJSON() {
+nlohmann::json cinema::Cinema::GetJSON() const {
     nlohmann::json j;
     j["city"] = city_;
-    for (cinema::Hall& h : halls_) {
+    for (const cinema::Hall& h : halls_) {
         j["halls"].push_back(h.GetJSON());
     }
     return j;
 }
 
-void cinema::Cinema::Write() {
-    std::cout << GetJSON() << "\n";
+void cinema::Cinema::Write() const {
+    std::cout << GetJSON().dump(2) << "\n";
 }

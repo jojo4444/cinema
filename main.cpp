@@ -1,13 +1,11 @@
 #include "CinemaNetwork/cinemaNetwork.h"
 
 int main() {
-    auto inf = std::ifstream("../cinemas/Kaliningrad_1.json");
+    cnet::CinemaNetwork cn;
 
-    cinema::Cinema c;
-    c.ReadFromJSON(inf);
-    c.Write();
+    cn.Init();
 
-    inf.close();
+    cn.Write();
 
     return 0;
 }
