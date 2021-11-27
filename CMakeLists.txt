@@ -3,4 +3,4 @@ project(cinema)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(cinema main.cpp)
+add_executable(cinema main.cpp CinemaNetwork/cinemaNetwork.h CinemaNetwork/cinemaNetwork.cpp CinemaNetwork/cinema.h CinemaNetwork/cinema.cpp)
