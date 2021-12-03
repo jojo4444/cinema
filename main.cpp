@@ -11,10 +11,12 @@ int main() {
     console::Cli cli;
     cli.add("SPB");
     cli.add("Kaliningrad");
-    cli.prewrite();
-    cli.write();
+    cli.add("Margo");
+    cli.add("Jojo");
 
-    int S = 60;
+    cli.prewrite();
+
+    int S = 100;
     for (int i = 0; i <= S; ++i) {
         std::this_thread::sleep_for(100ms);
         cli.setProb("SPB", i / (double)S);

@@ -6,6 +6,18 @@
 
 console::Cursor::Cursor() = default;
 
+std::string console::Cursor::colorForeground(int r, int g, int b) {
+    std::stringstream ss;
+    ss << "\033[38;2;" << r << ";" << g << ";" << b << "m";
+    return ss.str();
+}
+
+std::string console::Cursor::colorBackground(int r, int g, int b) {
+    std::stringstream ss;
+    ss << "\033[48;2;" << r << ";" << g << ";" << b << "m";
+    return ss.str();
+}
+
 int console::Cursor::hgetch() {
     int ch;
     termios old_termios{}, new_termios{};
@@ -39,6 +51,18 @@ void console::Cursor::shiftRow(int dr) const {
 void console::Cursor::cursorToBegin() const {
     const std::lock_guard<std::mutex> lock(mu_);
     std::cout << "\033[" << std::numeric_limits<short>::max() << "D" << std::flush;
+}
+
+void console::Cursor::setActivatedMod(bool action) const {
+    const std::lock_guard<std::mutex> lock(mu_);
+    if (action) {
+        std::cout << colorBackground(200, 200, 200) << std::flush;
+    }
+}
+
+void console::Cursor::setDeactivatedMod() const {
+    const std::lock_guard<std::mutex> lock(mu_);
+    std::cout << "\033[49m" << std::flush;
 }
 
 void console::Cursor::write(const std::string &s) const {

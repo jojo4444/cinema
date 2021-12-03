@@ -9,11 +9,17 @@
 #include <termios.h>
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
 
 namespace console {
+
     class Cursor {
     public:
         Cursor();
+
+        static std::string colorForeground(int r, int g, int b);
+
+        static std::string colorBackground(int r, int g, int b);
 
         static int hgetch();
 
@@ -22,6 +28,10 @@ namespace console {
         void shiftRow(int dr) const;
 
         void cursorToBegin() const;
+
+        void setActivatedMod(bool action) const;
+
+        void setDeactivatedMod() const;
 
         void write(const std::string &s) const;
 

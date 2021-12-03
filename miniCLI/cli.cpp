@@ -4,13 +4,8 @@
 
 #include "cli.h"
 
-static std::string console::Color(int r, int g, int b) {
-    std::stringstream ss;
-    ss << "\033[38;2;" << r << ";" << g << ";" << b << "m";
-    return ss.str();
-}
-
 console::Metric::Metric(const std::string &name) {
+    active_ = false;
     name_ = name;
     prob_ = 0;
 
@@ -60,13 +55,27 @@ double console::Metric::getProb() const {
     return prob_;
 }
 
+void console::Metric::activate() {
+    active_ = true;
+}
+
+void console::Metric::deactivate() {
+    active_ = false;
+}
+
+void console::Metric::changeActivity() {
+    active_ = !active_;
+}
+
 void console::Metric::write(const Cursor &c) const {
+    c.setActivatedMod(active_);
     for (const auto &line: lines_) {
         c.write(line);
         c.cursorToBegin();
         c.shiftRow(-1);
     }
     c.shiftRow(3);
+    c.setDeactivatedMod();
 }
 
 void console::Metric::gauge() {
@@ -75,7 +84,8 @@ void console::Metric::gauge() {
 
     ss << "│";
     for (int i = 0; i < console::LEN_METRIC; ++i) {
-        ss << console::Color(0, 85 + (255 - 85) * i / (double) LEN_METRIC, 0) << (i < cnt ? "█" : " ");
+        ss << console::Cursor::colorForeground(0, 85 + (255 - 85) * i / (double) LEN_METRIC, 0)
+           << (i < cnt ? "█" : " ");
     }
     ss << fDefault << "│";
     lines_[1] = ss.str();
@@ -83,6 +93,7 @@ void console::Metric::gauge() {
 
 console::Cli::Cli() {
     running_ = true;
+    selectedID_ = 0;
     worker_ = std::thread(&Cli::worker, this);
 }
 
@@ -93,11 +104,15 @@ console::Cli::~Cli() {
 
 void console::Cli::add(const std::string &nameMetric) {
     metrics_.emplace_back(nameMetric, Metric(nameMetric));
+    if (metrics_.size() == 1) {
+        metrics_.back().second.activate();
+    }
 }
 
 void console::Cli::prewrite() const {
     std::string s(metrics_.size() * 3, '\n');
     c_.write(s);
+    write();
 }
 
 void console::Cli::write() const {
@@ -106,6 +121,24 @@ void console::Cli::write() const {
         m.second.write(c_);
         c_.shiftRow(-3);
     }
+}
+
+void console::Cli::rewriteMetric(int id) const {
+    if (id < 0 || id >= metrics_.size()) {
+        return;
+    }
+    int dr = (metrics_.size() - id) * 3;
+    c_.shiftRow(dr);
+    metrics_[id].second.write(c_);
+    c_.shiftRow(-dr);
+}
+
+void console::Cli::changeActivity(int id) {
+    if (id < 0 || id >= metrics_.size()) {
+        return;
+    }
+    metrics_[id].second.changeActivity();
+    rewriteMetric(id);
 }
 
 void console::Cli::setProb(const std::string &metric, double p) {
@@ -124,8 +157,19 @@ void console::Cli::worker() {
     while (running_) {
         int ch = console::Cursor::hgetch();
         if (ch == 'q') {
-            c_.write("exit!\n");
             std::exit(0);
+        }
+        if (ch == 'w') {
+            if (selectedID_ > 0) {
+                changeActivity(selectedID_);
+                changeActivity(--selectedID_);
+            }
+        }
+        if (ch == 's') {
+            if (selectedID_ + 1 < metrics_.size()) {
+                changeActivity(selectedID_);
+                changeActivity(++selectedID_);
+            }
         }
     }
 }
