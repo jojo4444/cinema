@@ -1,10 +1,5 @@
-#include <chrono>
-#include <thread>
-
 #include "CinemaNetwork/cinemaNetwork.h"
 #include "miniCLI/cli.h"
-
-using namespace std::chrono_literals;
 
 int main() {
     cnet::CinemaNetwork cn;
@@ -16,6 +11,7 @@ int main() {
     console::Cli cli;
     cli.add("SPB");
     cli.add("Kaliningrad");
+    cli.prewrite();
     cli.write();
 
     int S = 60;
