@@ -16,7 +16,7 @@ int main() {
 
     cli.prewrite();
 
-    int S = 100;
+    int S = 80;
     for (int i = 0; i <= S; ++i) {
         std::this_thread::sleep_for(100ms);
         cli.setProb("SPB", i / (double)S);

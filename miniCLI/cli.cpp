@@ -13,36 +13,7 @@ console::Metric::Metric(const std::string &name) {
         name_ = "bad name (very long)";
     }
 
-    /// leftSize + name_.size() + rightSize == LEN_METRIC
-    /// |leftSize - rightSize| <= 1
-
-    int leftSize = (LEN_METRIC - (int) name_.size()) / 2;
-    int rightSize = LEN_METRIC - (int) name_.size() - leftSize;
-
-    const std::string boardSetLeft[3] = {"┌", "│", "└"};
-    const std::string boardSetRight[3] = {"┐", "│", "┘"};
-
-    std::stringstream ss[3];
-    for (int i = 0; i < 3; ++i) {
-        ss[i] << boardSetLeft[i];
-        if (i == 0) {
-            while (leftSize--) {
-                ss[i] << "─";
-            }
-            for (char c: name_) {
-                ss[i] << std::string(1, c);
-            }
-            while (rightSize--) {
-                ss[i] << "─";
-            }
-        } else {
-            for (int j = 0; j < LEN_METRIC; ++j) {
-                ss[i] << (i == 1 ? " " : "─");
-            }
-        }
-        ss[i] << boardSetRight[i];
-        lines_[i] = ss[i].str();
-    }
+    gauge();
 }
 
 void console::Metric::setProb(double p, const Cursor &c) {
@@ -57,38 +28,84 @@ double console::Metric::getProb() const {
 
 void console::Metric::activate() {
     active_ = true;
+    gauge();
 }
 
 void console::Metric::deactivate() {
     active_ = false;
+    gauge();
 }
 
 void console::Metric::changeActivity() {
     active_ = !active_;
+    gauge();
 }
 
 void console::Metric::write(const Cursor &c) const {
-    c.setActivatedMod(active_);
     for (const auto &line: lines_) {
         c.write(line);
         c.cursorToBegin();
         c.shiftRow(-1);
     }
     c.shiftRow(3);
-    c.setDeactivatedMod();
 }
 
 void console::Metric::gauge() {
-    std::stringstream ss;
+    /// leftSize + name_.size() + rightSize == LEN_METRIC
+    /// |leftSize - rightSize| <= 1
+
+    int leftSize = (LEN_METRIC - (int) name_.size()) / 2;
+    int rightSize = LEN_METRIC - (int) name_.size() - leftSize;
+
+    const std::string boardSetLeft[3] = {"┌", "│", "└"};
+    const std::string boardSetRight[3] = {"┐", "│", "┘"};
+
     int cnt = prob_ * LEN_METRIC;
 
-    ss << "│";
-    for (int i = 0; i < console::LEN_METRIC; ++i) {
-        ss << console::Cursor::colorForeground(0, 85 + (255 - 85) * i / (double) LEN_METRIC, 0)
-           << (i < cnt ? "█" : " ");
+    const auto activeColorForeground = Cursor::colorForeground(40, 40, 40);
+    const auto activeColorBackground = Cursor::colorBackground(200, 200, 200);
+
+    std::stringstream ss[3];
+    for (int i = 0; i < 3; ++i) {
+        if (active_) {
+            ss[i] << activeColorBackground << activeColorForeground;
+        }
+        ss[i] << boardSetLeft[i];
+        if (i == 0) {
+            while (leftSize--) {
+                ss[i] << "─";
+            }
+            for (char c: name_) {
+                ss[i] << std::string{c};
+            }
+            while (rightSize--) {
+                ss[i] << "─";
+            }
+        } else {
+            for (int j = 0; j < LEN_METRIC; ++j) {
+                if (i == 1) {
+                    int h = 50 + 180 * j / (double) LEN_METRIC;
+                    std::string cl;
+
+                    if (active_) {
+                        cl = Cursor::colorForeground(h, 0, 0);
+                    } else {
+                        cl = Cursor::colorForeground(0, h, 0);
+                    }
+
+                    ss[i] << cl << (j < cnt ? "█" : " ");
+                } else {
+                    ss[i] << "─";
+                }
+            }
+        }
+        ss[i] << "\033[39m";
+        if (active_) {
+            ss[i] << activeColorForeground;
+        }
+        ss[i] << boardSetRight[i] << "\033[39m\033[49m";
+        lines_[i] = ss[i].str();
     }
-    ss << fDefault << "│";
-    lines_[1] = ss.str();
 }
 
 console::Cli::Cli() {
@@ -99,6 +116,7 @@ console::Cli::Cli() {
 
 console::Cli::~Cli() {
     running_ = false;
+    c_.write("press any key for exit\n");
     worker_.join();
 }
 
@@ -115,15 +133,8 @@ void console::Cli::prewrite() const {
     write();
 }
 
-void console::Cli::write() const {
-    c_.shiftRow(metrics_.size() * 3);
-    for (const auto &m: metrics_) {
-        m.second.write(c_);
-        c_.shiftRow(-3);
-    }
-}
-
 void console::Cli::rewriteMetric(int id) const {
+    const std::lock_guard<std::mutex> lock(mu_);
     if (id < 0 || id >= metrics_.size()) {
         return;
     }
@@ -142,6 +153,7 @@ void console::Cli::changeActivity(int id) {
 }
 
 void console::Cli::setProb(const std::string &metric, double p) {
+    const std::lock_guard<std::mutex> lock(mu_);
     for (int i = 0; i < metrics_.size(); ++i) {
         auto &m = metrics_[i];
         if (m.first == metric) {
@@ -153,19 +165,32 @@ void console::Cli::setProb(const std::string &metric, double p) {
     }
 }
 
+void console::Cli::write() const {
+    c_.shiftRow(metrics_.size() * 3);
+    for (const auto &m: metrics_) {
+        m.second.write(c_);
+        c_.shiftRow(-3);
+    }
+}
+
 void console::Cli::worker() {
     while (running_) {
         int ch = console::Cursor::hgetch();
-        if (ch == 'q') {
+
+        if (!running_) {
+            break;
+        }
+
+        if (ch == 'q' || ch == 'Q') {
             std::exit(0);
         }
-        if (ch == 'w') {
+        if (ch == 'w' || ch == 'W') {
             if (selectedID_ > 0) {
                 changeActivity(selectedID_);
                 changeActivity(--selectedID_);
             }
         }
-        if (ch == 's') {
+        if (ch == 's' || ch == 'S') {
             if (selectedID_ + 1 < metrics_.size()) {
                 changeActivity(selectedID_);
                 changeActivity(++selectedID_);

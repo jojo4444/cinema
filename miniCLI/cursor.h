@@ -29,10 +29,6 @@ namespace console {
 
         void cursorToBegin() const;
 
-        void setActivatedMod(bool action) const;
-
-        void setDeactivatedMod() const;
-
         void write(const std::string &s) const;
 
     private:

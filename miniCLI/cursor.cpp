@@ -53,18 +53,6 @@ void console::Cursor::cursorToBegin() const {
     std::cout << "\033[" << std::numeric_limits<short>::max() << "D" << std::flush;
 }
 
-void console::Cursor::setActivatedMod(bool action) const {
-    const std::lock_guard<std::mutex> lock(mu_);
-    if (action) {
-        std::cout << colorBackground(200, 200, 200) << std::flush;
-    }
-}
-
-void console::Cursor::setDeactivatedMod() const {
-    const std::lock_guard<std::mutex> lock(mu_);
-    std::cout << "\033[49m" << std::flush;
-}
-
 void console::Cursor::write(const std::string &s) const {
     const std::lock_guard<std::mutex> lock(mu_);
     std::cout << s << std::flush;

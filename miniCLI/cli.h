@@ -75,8 +75,6 @@ namespace console {
 
         void prewrite() const;
 
-        void write() const;
-
         void rewriteMetric(int id) const;
 
         void changeActivity(int id);
@@ -84,9 +82,12 @@ namespace console {
         void setProb(const std::string &metric, double p);
 
     private:
+        void write() const;
+
         void worker();
 
         int selectedID_; /// if metrics empty -> 0
+        mutable std::mutex mu_;
         std::vector<std::pair<std::string, Metric> > metrics_;
 
         std::thread worker_;
