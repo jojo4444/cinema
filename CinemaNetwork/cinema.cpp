@@ -15,8 +15,8 @@ cinema::Order cinema::Hall::BuySeat(int row, int col) {
     }
     if (status_[row][col] == cinema::Seat::Free) {
         status_[row][col] = cinema::Seat::Buy;
-        CovidLock(row, col - 1);
-        CovidLock(row, col + 1);
+        covidLock(row, col - 1);
+        covidLock(row, col + 1);
         return cinema::Order::Success;
     }
     if (status_[row][col] == cinema::Seat::Lock) {
@@ -25,7 +25,7 @@ cinema::Order cinema::Hall::BuySeat(int row, int col) {
     return cinema::Order::Taken;
 }
 
-nlohmann::json cinema::Hall::GetJSON() const {
+nlohmann::json cinema::Hall::getJSON() const {
     nlohmann::json j;
     j["name"] = name_;
     for (int r: rows_) {
@@ -34,7 +34,7 @@ nlohmann::json cinema::Hall::GetJSON() const {
     return j;
 }
 
-void cinema::Hall::ReadFromJSON(nlohmann::json &j) {
+void cinema::Hall::readFromJSON(nlohmann::json &j) {
     name_ = j["name"].get<std::string>();
     rows_ = j["rows"].get<std::vector<int> >();
 
@@ -45,7 +45,7 @@ void cinema::Hall::ReadFromJSON(nlohmann::json &j) {
     }
 }
 
-void cinema::Hall::CovidLock(int row, int col) {
+void cinema::Hall::covidLock(int row, int col) {
     if (0 <= row && row < rows_.size() && 0 <= col && col < rows_[row] && status_[row][col] == cinema::Seat::Free) {
         status_[row][col] = cinema::Seat::Lock;
     }
@@ -53,7 +53,7 @@ void cinema::Hall::CovidLock(int row, int col) {
 
 cinema::Cinema::Cinema() : city_(DEFAULT_CITY) {}
 
-void cinema::Cinema::ReadFromJSON(std::ifstream &inf) {
+void cinema::Cinema::readFromJSON(std::ifstream &inf) {
     nlohmann::json j;
 
     inf >> j;
@@ -61,20 +61,20 @@ void cinema::Cinema::ReadFromJSON(std::ifstream &inf) {
 
     for (auto &el: j["halls"]) {
         cinema::Hall h;
-        h.ReadFromJSON(el);
+        h.readFromJSON(el);
         halls_.push_back(h);
     }
 }
 
-nlohmann::json cinema::Cinema::GetJSON() const {
+nlohmann::json cinema::Cinema::getJSON() const {
     nlohmann::json j;
     j["city"] = city_;
     for (const cinema::Hall &h: halls_) {
-        j["halls"].push_back(h.GetJSON());
+        j["halls"].push_back(h.getJSON());
     }
     return j;
 }
 
-void cinema::Cinema::Write() const {
-    std::cout << GetJSON().dump(2) << "\n";
+void cinema::Cinema::write() const {
+    std::cout << getJSON().dump(2) << "\n";
 }
