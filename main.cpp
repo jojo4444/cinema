@@ -5,7 +5,7 @@
 
 using namespace std::chrono_literals;
 
-const std::chrono::duration ONE_DAY_MS = 80ms;
+const std::chrono::duration ONE_DAY_MS = 50ms;
 
 std::vector<std::string> cities = {
         "Saint Petersburg",
@@ -61,9 +61,9 @@ int main() {
     std::vector<people::Midd> middles;
     std::vector<people::Senior> seniors;
 
-    makePeople(children, 40);
-    makePeople(middles, 30);
-    makePeople(seniors, 10);
+    makePeople(children, 25);
+    makePeople(middles, 70);
+    makePeople(seniors, 15);
 
     std::vector<std::thread> jobs[3];
     for (int j = 0; j < P; ++j) {
