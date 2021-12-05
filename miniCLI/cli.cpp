@@ -114,11 +114,7 @@ void console::Metric::gauge() {
                     int h = 50 + 180 * j / (double) LEN_METRIC;
                     std::string cl;
 
-                    if (active_) {
-                        cl = Cursor::colorForeground(h, 0, 0);
-                    } else {
-                        cl = Cursor::colorForeground(0, h, 0);
-                    }
+                    cl = Cursor::colorForeground(100, h, h / 3);
 
                     ss[i] << cl << (j < cnt ? "█" : " ");
                 } else {

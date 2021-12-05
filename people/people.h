@@ -25,6 +25,8 @@ namespace people {
 
         static double getCf(Age a);
 
+        bool tryCinema() const;
+
         std::string getCity() const;
 
         double goCinema(); /// return quality [0; 1], 1 - best

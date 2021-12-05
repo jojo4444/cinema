@@ -5,7 +5,7 @@
 
 using namespace std::chrono_literals;
 
-const std::chrono::duration ONE_DAY_MS = 80ms;
+const std::chrono::duration ONE_DAY_MS = 100ms;
 
 std::vector<std::string> cities = {
         "Saint Petersburg",
@@ -43,8 +43,10 @@ void distribution(std::vector<T> &p, int start) {
         }
 
         for (int i = start; i < p.size(); i += P) {
-            double review = p[i].goCinema();
-            console::Cli::singleton->updateMetric(p[i].getCity(), review);
+            if (p[i].tryCinema()) {
+                double review = p[i].goCinema();
+                console::Cli::singleton->updateMetric(p[i].getCity(), review);
+            }
         }
 
         ++localDay;
@@ -61,9 +63,9 @@ int main() {
     std::vector<people::Midd> middles;
     std::vector<people::Senior> seniors;
 
-    makePeople(children, 40);
-    makePeople(middles, 30);
-    makePeople(seniors, 10);
+    makePeople(children, 400);
+    makePeople(middles, 500);
+    makePeople(seniors, 100);
 
     std::vector<std::thread> jobs[3];
     for (int j = 0; j < P; ++j) {
