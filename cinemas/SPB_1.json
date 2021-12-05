@@ -1,5 +1,6 @@
 {
   "city": "Saint Petersburg",
+  "name": "Cinema-park",
   "halls": [
     {
       "name": "Russia",

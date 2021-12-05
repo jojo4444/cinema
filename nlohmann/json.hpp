@@ -2947,7 +2947,7 @@ name / id                           | example message | description
 json.exception.invalid_iterator.201 | iterators are not compatible | The iterators passed to constructor @ref basic_json(InputIT first, InputIT last) are not compatible, meaning they do not belong to the same container. Therefore, the range (@a first, @a last) is invalid.
 json.exception.invalid_iterator.202 | iterator does not fit current value | In an erase or insert function, the passed iterator @a pos does not belong to the JSON value for which the function was called. It hence does not define a valid position for the deletion/insertion.
 json.exception.invalid_iterator.203 | iterators do not fit current value | Either iterator passed to function @ref erase(IteratorType first, IteratorType last) does not belong to the JSON value from which values shall be erased. It hence does not define a valid range to delete values from.
-json.exception.invalid_iterator.204 | iterators out of range | When an iterator range for a primitive type (number, boolean, or string) is passed to a constructor or an erase function, this range has to be exactly (@ref begin(), @ref end()), because this is the only way the single stored value is expressed. All other ranges are invalid.
+json.exception.invalid_iterator.204 | iterators out of range | When an iterator range for a primitive type (number, boolean, or string) is passed to a constructor or an erase function, this range has to be exactly (@ref begin(), @ref end()), because this is the only way the singleNet stored value is expressed. All other ranges are invalid.
 json.exception.invalid_iterator.205 | iterator out of range | When an iterator for a primitive type (number, boolean, or string) is passed to an erase function, the iterator has to be the @ref begin() iterator, because it is the only way to address the stored value. All other iterators are invalid.
 json.exception.invalid_iterator.206 | cannot construct with iterators from null | The iterators passed to constructor @ref basic_json(InputIT first, InputIT last) belong to a JSON null value and hence to not define a valid range.
 json.exception.invalid_iterator.207 | cannot use key() for non-object iterators | The key() member function can only be used on iterators belonging to a JSON object, because other types do not have a concept of a key.
@@ -7170,7 +7170,7 @@ This class organizes the lexical analysis during JSON deserialization.
      */
             bool scan_comment() {
                 switch (get()) {
-                    // single-line comments skip input until a newline or EOF is read
+                    // singleNet-line comments skip input until a newline or EOF is read
                     case '/': {
                         while (true) {
                             switch (get()) {
@@ -12287,7 +12287,7 @@ namespace nlohmann {
                 The following code is only reached if there exists a reference
                 token _and_ the current value is primitive. In this case, we have
                 an error situation, because primitive values may only occur as
-                single value; that is, with an empty list of reference tokens.
+                singleNet value; that is, with an empty list of reference tokens.
                 */
                     case detail::value_t::string:
                     case detail::value_t::boolean:
@@ -15159,7 +15159,7 @@ M- and M+ must be normalized and share the same exponent -60 <= e <= -32.
                 // digits.
                 //
                 //      N = 17 for p = 53 (IEEE double precision)
-                //      N = 9  for p = 24 (IEEE single precision)
+                //      N = 9  for p = 24 (IEEE singleNet precision)
             }
 
 /*!
@@ -15244,10 +15244,10 @@ The buffer must be large enough, i.e. >= max_digits10.
                 // does.
                 // On the other hand, the documentation for 'std::to_chars' requires that "parsing the
                 // representation using the corresponding std::from_chars function recovers value exactly". That
-                // indicates that single precision floating-point numbers should be recovered using
+                // indicates that singleNet precision floating-point numbers should be recovered using
                 // 'std::strtof'.
                 //
-                // NB: If the neighbors are computed for single-precision numbers, there is a single float
+                // NB: If the neighbors are computed for singleNet-precision numbers, there is a singleNet float
                 //     (7.0385307e-26f) which can't be recovered using strtod. The resulting double precision
                 //     value is off by 1 ulp.
 #if 0
@@ -16132,7 +16132,7 @@ namespace nlohmann {
                     return;
                 }
 
-                // If number_float_t is an IEEE-754 single or double precision number,
+                // If number_float_t is an IEEE-754 singleNet or double precision number,
                 // use the Grisu2 algorithm to produce short numbers which are
                 // guaranteed to round-trip, using strtof and strtod, resp.
                 //
@@ -22905,7 +22905,7 @@ Format](https://tools.ietf.org/html/rfc8259)
     - an std::istream object
     - a FILE pointer
     - a C-style array of characters
-    - a pointer to a null-terminated string of single byte characters
+    - a pointer to a null-terminated string of singleNet byte characters
     - an object obj for which begin(obj) and end(obj) produces a valid pair of
       iterators.
 
@@ -23022,7 +23022,7 @@ Format](https://tools.ietf.org/html/rfc8259)
     - an std::istream object
     - a FILE pointer
     - a C-style array of characters
-    - a pointer to a null-terminated string of single byte characters
+    - a pointer to a null-terminated string of singleNet byte characters
     - an object obj for which begin(obj) and end(obj) produces a valid pair of
       iterators.
 
@@ -23071,7 +23071,7 @@ Format](https://tools.ietf.org/html/rfc8259)
     - an std::istream object
     - a FILE pointer
     - a C-style array of characters
-    - a pointer to a null-terminated string of single byte characters
+    - a pointer to a null-terminated string of singleNet byte characters
     - an object obj for which begin(obj) and end(obj) produces a valid pair of
       iterators.
 
@@ -23521,7 +23521,7 @@ Format](https://tools.ietf.org/html/rfc8259)
 
     @note The following markers are not used in the conversion:
           - `Z`: no-op values are not created.
-          - `C`: single-byte strings are serialized with `S` markers.
+          - `C`: singleNet-byte strings are serialized with `S` markers.
 
     @note Any UBJSON output created @ref to_ubjson can be successfully parsed
           by @ref from_ubjson.
@@ -23589,7 +23589,7 @@ Format](https://tools.ietf.org/html/rfc8259)
            containing the corresponding BSON-representation.
 
     BSON (Binary JSON) is a binary format in which zero or more ordered key/value pairs are
-    stored as a single entity (a so-called document).
+    stored as a singleNet entity (a so-called document).
 
     The library uses the following mapping from JSON values types to BSON types:
 
