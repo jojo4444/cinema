@@ -22,6 +22,10 @@ double people::Person::getCf(Age a) {
     return 0;
 }
 
+bool people::Person::tryCinema() const {
+    return thrnd::Thrand::singleton->bernoulli(cf_active_);
+}
+
 std::string people::Person::getCity() const {
     return city_;
 }
