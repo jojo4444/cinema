@@ -44,7 +44,11 @@ namespace console {
 
         void setProb(double p, const Cursor &c);
 
+        void addReview(double val, const Cursor &c);
+
         double getProb() const;
+
+        double getCntReview() const;
 
         void activate();
 
@@ -61,6 +65,7 @@ namespace console {
         std::string name_;
         std::string lines_[3];
         double prob_;
+        int cntReview_;
 
         /// invariant cursor: local -> left-up
     };
@@ -70,6 +75,10 @@ namespace console {
         Cli();
 
         ~Cli();
+
+        bool isRunning() const;
+
+        void setDays(int days);
 
         void add(const std::string &nameMetric);
 
@@ -81,11 +90,22 @@ namespace console {
 
         void setProb(const std::string &metric, double p);
 
+        void updateMetric(const std::string &metric, double val);
+
+        static Cli *singleton;
+
+        static void unable();
+
+        static void disable();
+
     private:
         void write() const;
 
         void worker();
 
+        static std::mutex mu_single_;
+
+        int days_;
         int selectedID_; /// if metrics empty -> 0
         mutable std::mutex mu_;
         std::vector<std::pair<std::string, Metric> > metrics_;
