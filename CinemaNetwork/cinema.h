@@ -7,20 +7,22 @@
 
 #include <fstream>
 #include <iostream>
+#include <mutex>
 
 #include "../nlohmann/json.hpp"
+#include "../thrandom/rnd.h"
 
 namespace cinema {
-    const std::string DEFAULT_NAME = "jojo";
+    const std::string DEFAULT_NAME = "bfu-cinema";
     const std::string DEFAULT_CITY = "Ozerki";
 
-    enum Seat {
+    enum class Seat {
         Free,
         Buy,
         Lock,
     };
 
-    enum Order {
+    enum class Order {
         Success,
         Taken,
         Incorrect,
@@ -30,7 +32,13 @@ namespace cinema {
     public:
         Hall();
 
-        Order BuySeat(int row, int col);
+        void clear();
+
+        std::string getName() const;
+
+        Order buySeat(int row, int col);
+
+        double buyOptimum();
 
         nlohmann::json getJSON() const;
 
@@ -39,6 +47,7 @@ namespace cinema {
     private:
         void covidLock(int row, int col);
 
+        double maxDistToCenter_;
         std::string name_;
         std::vector<int> rows_;
         std::vector<std::vector<Seat> > status_;
@@ -48,6 +57,14 @@ namespace cinema {
     public:
         Cinema();
 
+        Cinema(const Cinema &other);
+
+        void clear();
+
+        double buySeat(); /// return min dist to center
+
+        std::string getCity() const;
+
         void readFromJSON(std::ifstream &inf);
 
         nlohmann::json getJSON() const;
@@ -55,7 +72,8 @@ namespace cinema {
         void write() const;
 
     private:
-        std::string city_;
+        mutable std::mutex mu_;
+        std::string name_, city_;
         std::vector<Hall> halls_;
     };
 }
